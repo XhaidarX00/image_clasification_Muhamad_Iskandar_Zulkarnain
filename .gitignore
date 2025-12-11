@@ -1,0 +1,99 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# TensorFlow/Keras
+*.h5
+*.keras
+*.ckpt
+*.pb
+checkpoint
+
+# Model weights (uncomment if you want to include model in git)
+# model/
+
+# Dataset files (large files)
+cats_dogs_datasets/
+cats_dogs_datasets.zip
+*.zip
+
+# Uploaded files
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Data files (history, config will be regenerated)
+data/history.json
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+_DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# pytest
+.pytest_cache/
+.tox/
+
+# mypy
+.mypy_cache/
+
+# Docker
+.docker/
+
+# MobileNet weights cache
+model/weights/
