@@ -41,12 +41,16 @@ env/
 .ipynb_checkpoints/
 *.ipynb
 
-# TensorFlow/Keras
+# TensorFlow/Keras (ignore everywhere except model/ folder)
 *.h5
 *.keras
 *.ckpt
 *.pb
 checkpoint
+
+# Exception: Include model files in model/ directory
+!model/
+!model/**
 
 # Dataset files (large files)
 cats_dogs_datasets/
