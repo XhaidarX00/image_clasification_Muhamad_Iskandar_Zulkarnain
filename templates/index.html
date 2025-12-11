@@ -984,11 +984,33 @@
             <div class="card">
                 <h2 class="card-title">🔄 Retrain Model</h2>
 
+                <!-- Server Limitation Notice -->
+                <div
+                    style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <div>
+                            <h3 style="color: var(--error); font-size: 1rem; margin-bottom: 8px;">Training Disabled</h3>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                                Model training is currently <strong>disabled</strong> on this deployment due to server
+                                memory limitations
+                                (512MB RAM). Training deep learning models requires at least 2-4GB of RAM.
+                            </p>
+                            <p
+                                style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 12px; line-height: 1.6;">
+                                <strong>To retrain the model:</strong><br>
+                                • Run the application locally with adequate resources<br>
+                                • Or use a cloud platform with GPU support (Google Colab, Kaggle, etc.)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="training-status" id="training-status">
                     <div class="status-header">
                         <div class="status-info">
                             <span id="status-dot" class="status-dot idle"></span>
-                            <span id="status-text">Status: Idle</span>
+                            <span id="status-text">Status: Disabled (Server Limitation)</span>
                         </div>
                         <div id="live-time" class="live-time" style="display: none;">
                             <span class="live-indicator"></span>
@@ -1010,18 +1032,19 @@
                     </div>
                 </div>
 
-                <div class="upload-area" id="training-upload-area">
+                <div class="upload-area" id="training-upload-area" style="opacity: 0.5; pointer-events: none;">
                     <div class="upload-icon">📦</div>
                     <p class="upload-text">Upload a ZIP file with training data</p>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px;">
                         ZIP should contain folders named 'cats' and 'dogs' with images
                     </p>
-                    <input type="file" id="training-file-input" class="file-input" accept=".zip">
-                    <button class="btn btn-secondary btn-sm">Choose ZIP File</button>
+                    <input type="file" id="training-file-input" class="file-input" accept=".zip" disabled>
+                    <button class="btn btn-secondary btn-sm" disabled>Choose ZIP File</button>
                 </div>
 
-                <button id="train-btn" class="btn btn-primary" style="margin-top: 20px;" disabled>
-                    <span id="train-text">🚀 Start Training</span>
+                <button id="train-btn" class="btn btn-primary"
+                    style="margin-top: 20px; opacity: 0.5; cursor: not-allowed;" disabled>
+                    <span id="train-text">🚀 Training Disabled</span>
                     <span id="train-spinner" class="spinner" style="display: none;"></span>
                 </button>
             </div>
