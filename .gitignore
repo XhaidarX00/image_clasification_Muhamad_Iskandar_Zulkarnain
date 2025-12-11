@@ -48,9 +48,6 @@ env/
 *.pb
 checkpoint
 
-# Model weights (uncomment if you want to include model in git)
-# model/
-
 # Dataset files (large files)
 cats_dogs_datasets/
 cats_dogs_datasets.zip
@@ -94,6 +91,3 @@ coverage.xml
 
 # Docker
 .docker/
-
-# MobileNet weights cache
-model/weights/
