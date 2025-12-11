@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation - Cat vs Dog Classifier 🐱🐶</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables - Same as index.html */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #059669;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --error: #ef4444;
+            --cat-color: #f97316;
+            --dog-color: #3b82f6;
+            --radius: 16px;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cat-color), var(--primary), var(--dog-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            padding: 32px 16px;
+            margin: 0 auto;
+        }
+
+        /* Page Title */
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cat-color), var(--primary), var(--dog-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Section */
+        .section {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header .icon {
+            font-size: 2rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Stats Card */
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Image Container */
+        .image-container {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .image-caption {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-glass);
+        }
+
+        th,
+        td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #a5d6a7;
+        }
+
+        /* List */
+        ul,
+        ol {
+            padding-left: 24px;
+            margin-top: 12px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Alert Box */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--dog-color);
+            color: var(--text-primary);
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--success);
+            color: var(--text-primary);
+        }
+
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title h1 {
+                font-size: 1.75rem;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Header -->
+    <div class="nav-header">
+        <div class="nav-container">
+            <div class="nav-logo">🐱🐶 Cat vs Dog Classifier</div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Main App</a>
+                <a href="/presentation" class="nav-link active">📊 Presentation</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1>📊 Studi Kasus Computer Vision</h1>
+            <p>Klasifikasi Gambar Kucing dan Anjing menggunakan Deep Learning</p>
+        </div>
+
+        <!-- Section 1: Problem Statement -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">🎯</span> Problem Statement</h2>
+                <p>Permasalahan yang diselesaikan dalam proyek ini</p>
+            </div>
+            <div class="alert info">
+                <strong>Objective:</strong> Membangun sistem klasifikasi gambar otomatis yang dapat membedakan antara
+                gambar kucing dan anjing dengan akurasi tinggi menggunakan teknik Deep Learning.
+            </div>
+            <p class="section-content" style="color: var(--text-secondary); margin-top: 16px;">
+                Proyek ini mengimplementasikan model Computer Vision untuk klasifikasi biner (binary classification)
+                menggunakan
+                <strong style="color: var(--primary);">Transfer Learning</strong> dengan arsitektur
+                <strong style="color: var(--primary);">MobileNetV2</strong> yang telah dilatih pada dataset ImageNet.
+            </p>
+        </div>
+
+        <!-- Section 2: Dataset Analysis -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">📁</span> Dataset Analysis</h2>
+                <p>Informasi detail tentang dataset yang digunakan</p>
+            </div>
+            <div id="dataset-stats" class="grid-2">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px;">Loading dataset information...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Model Architecture -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">🧠</span> Model Architecture</h2>
+                <p>Arsitektur dan konfigurasi model</p>
+            </div>
+
+            <div class="alert success">
+                <strong>✅ Mengapa MobileNetV2?</strong>
+                <ul style="margin-top: 8px;">
+                    <li><strong>Lightweight:</strong> Hanya 14MB, cocok untuk deployment</li>
+                    <li><strong>Efficient:</strong> Inference time cepat (~50ms per image)</li>
+                    <li><strong>Mobile-Friendly:</strong> Optimal untuk perangkat mobile</li>
+                    <li><strong>Proven Performance:</strong> Pre-trained on ImageNet (1.4M images)</li>
+                </ul>
+            </div>
+
+            <div class="table-wrapper" style="margin-top: 24px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Base Architecture</td>
+                            <td>MobileNetV2</td>
+                        </tr>
+                        <tr>
+                            <td>Input Size</td>
+                            <td>160 x 160 pixels</td>
+                        </tr>
+                        <tr>
+                            <td>Pre-trained Weights</td>
+                            <td>ImageNet</td>
+                        </tr>
+                        <tr>
+                            <td>Training Strategy</td>
+                            <td>Two-Phase (Feature Extraction + Fine-tuning)</td>
+                        </tr>
+                        <tr>
+                            <td>Initial Epochs</td>
+                            <td>10 (Frozen Base)</td>
+                        </tr>
+                        <tr>
+                            <td>Fine-tune Epochs</td>
+                            <td>15 (Last ~30 layers unfrozen)</td>
+                        </tr>
+                        <tr>
+                            <td>Optimizer</td>
+                            <td>Adam (lr=1e-5 for fine-tuning)</td>
+                        </tr>
+                        <tr>
+                            <td>Loss Function</td>
+                            <td>Binary Crossentropy</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 4: Training Results -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">📈</span> Training Results</h2>
+                <p>History dan performa model selama training</p>
+            </div>
+
+            <div id="training-plots" class="grid-2">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px;">Loading training plots...</p>
+                </div>
+            </div>
+
+            <div id="training-metrics" style="margin-top: 32px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.25rem;">Final Metrics</h3>
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px;">Loading metrics...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Model Evaluation -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">✅</span> Model Evaluation</h2>
+                <p>Evaluasi performa model dengan confusion matrix dan metrics</p>
+            </div>
+
+            <div id="confusion-matrix" class="image-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px;">Loading confusion matrix...</p>
+                </div>
+            </div>
+
+            <div id="evaluation-metrics" style="margin-top: 32px;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px;">Loading evaluation metrics...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Demo & Deployment -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">🚀</span> Demo & Deployment</h2>
+                <p>Implementasi dan deployment aplikasi</p>
+            </div>
+
+            <div class="alert info">
+                <strong>🌐 Live Demo:</strong> Aplikasi web dapat diakses di <a href="/"
+                    style="color: var(--primary); text-decoration: underline;">halaman utama</a>
+            </div>
+
+            <h3 style="margin:24px 0 16px; font-size: 1.25rem;">Tech Stack</h3>
+            <div class="grid-2">
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 12px;">Backend</h4>
+                    <ul>
+                        <li>FastAPI + Uvicorn</li>
+                        <li>TensorFlow/Keras</li>
+                        <li>Python 3.10+</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 12px;">Frontend</h4>
+                    <ul>
+                        <li>HTML + CSS + JavaScript</li>
+                        <li>Responsive Design</li>
+                        <li>Modern UI/UX</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin: 24px 0 16px; font-size: 1.25rem;">API Endpoints</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Endpoint</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/predict</td>
+                            <td>Klasifikasi gambar</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/history</td>
+                            <td>Riwayat prediksi</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/train</td>
+                            <td>Retrain model</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/training-status</td>
+                            <td>Status training</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/presentation/*</td>
+                            <td>Presentation materials</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert warning" style="margin-top: 24px;">
+                <strong>⚠️ Deployment Info:</strong> Aplikasi di-deploy menggunakan Docker untuk portability dan
+                consistency across environments.
+            </div>
+        </div>
+
+        <!-- Section 7: Limitations & Future Work -->
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="icon">⚠️</span> Limitations & Future Work</h2>
+                <p>Keterbatasan model dan area pengembangan</p>
+            </div>
+
+            <h3 style="margin-bottom: 16px; font-size: 1.25rem; color: var(--error);">Current Limitations</h3>
+            <ul style="margin-bottom: 24px;">
+                <li>Model kurang akurat untuk gambar blur atau low-quality</li>
+                <li>Performa menurun pada sudut kamera ekstrem</li>
+                <li>Binary classification only (Cat vs Dog, tidak bisa detect label lain)</li>
+                <li>Memerlukan gambar dengan minimal 1 objek yang jelas</li>
+                <li>Training di Render terbatas karena RAM 512MB</li>
+            </ul>
+
+            <h3 style="margin-bottom: 16px; font-size: 1.25rem; color: var(--success);">Future Improvements</h3>
+            <ul>
+                <li><strong>Multi-class Classification:</strong> Tambah kategori hewan lain</li>
+                <li><strong>Object Detection:</strong> Detect multiple animals dalam 1 gambar</li>
+                <li><strong>Model Upgrade:</strong> Try EfficientNet atau Vision Transformer</li>
+                <li><strong>Data Augmentation:</strong> Tambah variasi preprocessing</li>
+                <li><strong>Real-time Prediction:</strong> Implement webcam support</li>
+                <li><strong>Model Compression:</strong> Quantization untuk mobile deployment</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display dataset info
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch('/api/presentation/dataset-info');
+                if (!response.ok) {
+                    throw new Error('Dataset info not available');
+                }
+                const data = await response.json();
+
+                const container = document.getElementById('dataset-stats');
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.total_samples}</div>
+                        <div class="stat-label">Total Images</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.train_samples}</div>
+                        <div class="stat-label">Training Set</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.val_samples}</div>
+                        <div class="stat-label">Validation Set</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.split_ratio}</div>
+                        <div class="stat-label">Split Ratio</div>
+                    </div>
+                    <div class="stat-card" style="background: rgba(249, 115, 22, 0.1);">
+                        <div class="stat-value" style="background: linear-gradient(135deg, var(--cat-color), #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${data.train_cats + data.val_cats}</div>
+                        <div class="stat-label">🐱 Cat Images</div>
+                    </div>
+                    <div class="stat-card" style="background: rgba(59, 130, 246, 0.1);">
+                        <div class="stat-value" style="background: linear-gradient(135deg, var(--dog-color), #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${data.train_dogs + data.val_dogs}</div>
+                        <div class="stat-label">🐶 Dog Images</div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('dataset-stats').innerHTML = `
+                    <div class="alert warning" style="grid-column: 1 / -1;">
+                        <strong>ℹ️ No Dataset Info Available</strong><br>
+                        Dataset information will be generated after model training.
+                    </div>
+                `;
+            }
+        }
+
+        // Load training plots
+        async function loadTrainingPlots() {
+            try {
+                const response = await fetch('/api/presentation/materials');
+                const data = await response.json();
+
+                if (!data.available) {
+                    throw new Error('No materials available');
+                }
+
+                const hasPlot = data.materials.some(m => m.name === 'Training History');
+                if (hasPlot) {
+                    document.getElementById('training-plots').innerHTML = `
+                        <div class="image-container" style="grid-column: 1 / -1;">
+                            <img src="/static/presentation/training_history.png" alt="Training History">
+                            <p class="image-caption">Training & Validation Accuracy and Loss over Epochs</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Plot not found');
+                }
+            } catch (error) {
+                document.getElementById('training-plots').innerHTML = `
+                    <div class="alert warning" style="grid-column: 1 / -1;">
+                        <strong>ℹ️ No Training Plots Available</strong><br>
+                        Training history plots will be generated after model training.
+                    </div>
+                `;
+            }
+        }
+
+        // Load training metrics
+        async function loadTrainingMetrics() {
+            try {
+                const response = await fetch('/api/presentation/metrics');
+                if (!response.ok) throw new Error('Metrics not available');
+
+                const data = await response.json();
+
+                document.getElementById('training-metrics').innerHTML = `
+                    <div class="grid-2">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th colspan="2">Training Metrics</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Final Accuracy</td><td><strong>${(data.training.final_accuracy * 100).toFixed(2)}%</strong></td></tr>
+                                    <tr><td>Final Loss</td><td><strong>${data.training.final_loss.toFixed(4)}</strong></td></tr>
+                                    <tr><td>Total Epochs</td><td><strong>${data.training.total_epochs}</strong></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th colspan="2">Validation Metrics</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Accuracy</td><td><strong style="color: var(--success);">${(data.validation.accuracy * 100).toFixed(2)}%</strong></td></tr>
+                                    <tr><td>Precision</td><td><strong>${(data.validation.precision * 100).toFixed(2)}%</strong></td></tr>
+                                    <tr><td>Recall</td><td><strong>${(data.validation.recall * 100).toFixed(2)}%</strong></td></tr>
+                                    <tr><td>F1-Score</td><td><strong>${(data.validation.f1_score * 100).toFixed(2)}%</strong></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('training-metrics').innerHTML = `
+                    <div class="alert warning">
+                        <strong>ℹ️ No Training Metrics Available</strong><br>
+                        Metrics will be generated after model training.
+                    </div>
+                `;
+            }
+        }
+
+        // Load confusion matrix
+        async function loadConfusionMatrix() {
+            try {
+                const response = await fetch('/api/presentation/materials');
+                const data = await response.json();
+
+                if (!data.available) throw new Error('No materials');
+
+                const hasMatrix = data.materials.some(m => m.name === 'Confusion Matrix');
+                if (hasMatrix) {
+                    document.getElementById('confusion-matrix').innerHTML = `
+                        <img src="/static/presentation/confusion_matrix.png" alt="Confusion Matrix" style="max-width: 600px; margin: 0 auto;">
+                        <p class="image-caption">Confusion Matrix menunjukkan True Positives, False Positives, True Negatives, dan False Negatives</p>
+                    `;
+                } else {
+                    throw new Error('Matrix not found');
+                }
+            } catch (error) {
+                document.getElementById('confusion-matrix').innerHTML = `
+                    <div class="alert warning">
+                        <strong>ℹ️ No Confusion Matrix Available</strong><br>
+                        Confusion matrix will be generated after model training.
+                    </div>
+                `;
+            }
+        }
+
+        // Load evaluation metrics
+        async function loadEvaluationMetrics() {
+            try {
+                const response = await fetch('/api/presentation/metrics');
+                if (!response.ok) throw new Error('Metrics not available');
+
+                const data = await response.json();
+
+                document.getElementById('evaluation-metrics').innerHTML = `
+                    <h3 style="margin-bottom: 16px; font-size: 1.25rem;">Performance Metrics</h3>
+                    <div class="grid-2">
+                        <div class="stat-card" style="background: rgba(34, 197, 94, 0.1);">
+                            <div class="stat-value" style="background: linear-gradient(135deg, var(--success), #16a34a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                ${(data.validation.accuracy * 100).toFixed(1)}%
+                            </div>
+                            <div class="stat-label">Validation Accuracy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${(data.validation.precision * 100).toFixed(1)}%</div>
+                            <div class="stat-label">Precision</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${(data.validation.recall * 100).toFixed(1)}%</div>
+                            <div class="stat-label">Recall</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${(data.validation.f1_score * 100).toFixed(1)}%</div>
+                            <div class="stat-label">F1-Score</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('evaluation-metrics').innerHTML = `
+                    <div class="alert warning">
+                        <strong>ℹ️ Metrics Not Available</strong><br>
+                        Complete metrics will be available after training.
+                    </div>
+                `;
+            }
+        }
+
+        // Load all data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDatasetInfo();
+            loadTrainingPlots();
+            loadTrainingMetrics();
+            loadConfusionMatrix();
+            loadEvaluationMetrics();
+        });
+    </script>
+</body>
+
+</html>

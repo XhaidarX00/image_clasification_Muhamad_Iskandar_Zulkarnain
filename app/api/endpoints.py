@@ -4,6 +4,8 @@ API endpoints for the Cat vs Dog classification application.
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
 from datetime import datetime
 import logging
+from pathlib import Path
+import json
 
 from ..models.schemas import (
     PredictionResponse,
@@ -203,3 +205,104 @@ async def get_training_status():
     """Get current training status."""
     status = training_service.get_status()
     return TrainingStatus(**status)
+
+
+# Presentation endpoints
+@router.get("/presentation/materials")
+async def get_presentation_materials():
+    """Get list of available presentation materials."""
+    presentation_dir = Path("static/presentation")
+    
+    if not presentation_dir.exists():
+        return {
+            "available": False,
+            "message": "No presentation materials available. Please train a model first.",
+            "materials": []
+        }
+    
+    materials = []
+    
+    # Check for training plots
+    if (presentation_dir / "training_history.png").exists():
+        materials.append({
+            "type": "image",
+            "name": "Training History",
+            "path": "/static/presentation/training_history.png"
+        })
+    
+    # Check for confusion matrix
+    if (presentation_dir / "confusion_matrix.png").exists():
+        materials.append({
+            "type": "image",
+            "name": "Confusion Matrix",
+            "path": "/static/presentation/confusion_matrix.png"
+        })
+    
+    # Check for JSON files
+    if (presentation_dir / "training_metrics.json").exists():
+        materials.append({
+            "type": "json",
+            "name": "Training Metrics",
+            "path": "/api/presentation/metrics"
+        })
+    
+    if (presentation_dir / "dataset_info.json").exists():
+        materials.append({
+            "type": "json",
+            "name": "Dataset Info",
+            "path": "/api/presentation/dataset-info"
+        })
+    
+    return {
+        "available": len(materials) > 0,
+        "total": len(materials),
+        "materials": materials
+    }
+
+
+@router.get("/presentation/metrics")
+async def get_training_metrics():
+    """Get training metrics JSON."""
+    metrics_path = Path("static/presentation/training_metrics.json")
+    
+    if not metrics_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Training metrics not found. Please train a model first."
+        )
+    
+    with open(metrics_path, 'r') as f:
+        return json.load(f)
+
+
+@router.get("/presentation/dataset-info")
+async def get_dataset_info():
+    """Get dataset information JSON."""
+    dataset_path = Path("static/presentation/dataset_info.json")
+    
+    if not dataset_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Dataset info not found. Please train a model first."
+        )
+    
+    with open(dataset_path, 'r') as f:
+        return json.load(f)
+
+
+@router.get("/presentation/prediction-stats")
+async def get_prediction_statistics():
+    """Get prediction statistics for presentation."""
+    try:
+        stats = prediction_service.get_prediction_stats()
+        return {
+            "success": True,
+            "stats": stats
+        }
+    except Exception as e:
+        logger.error(f"Failed to get prediction stats: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "stats": {}
+        }

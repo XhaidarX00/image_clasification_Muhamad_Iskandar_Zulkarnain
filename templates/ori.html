@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat vs Dog Classifier 🐱🐶</title>
+    <meta name="description" content="AI-powered image classifier for cats and dogs using MobileNetV2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #059669;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --error: #ef4444;
+            --cat-color: #f97316;
+            --dog-color: #3b82f6;
+            --radius: 16px;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Container */
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 24px 0;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cat-color), var(--primary), var(--dog-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-header .card-title {
+            margin-bottom: 0;
+        }
+
+        /* Upload Section */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 32px 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: var(--bg-glass);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+
+        /* File Input */
+        .file-input {
+            display: none;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            /* Touch target */
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            min-height: 36px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Button Group */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Image Preview */
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: var(--bg-glass);
+        }
+
+        .preview-filename {
+            margin-top: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Result Section */
+        .result-container {
+            display: none;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 32px 20px;
+        }
+
+        .result-emoji {
+            font-size: 5rem;
+            margin-bottom: 16px;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .result-label {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .result-label.cat {
+            color: var(--cat-color);
+        }
+
+        .result-label.dog {
+            color: var(--dog-color);
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: var(--bg-glass);
+            border-radius: 4px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .confidence-fill.cat {
+            background: linear-gradient(90deg, var(--cat-color), #fb923c);
+        }
+
+        .confidence-fill.dog {
+            background: linear-gradient(90deg, var(--dog-color), #60a5fa);
+        }
+
+        .confidence-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Correction Section */
+        .correction-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .correction-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .correction-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .correction-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg-glass);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .correction-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .correction-btn.cat:hover {
+            border-color: var(--cat-color);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .correction-btn.dog:hover {
+            border-color: var(--dog-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .correction-btn.selected {
+            border-width: 3px;
+        }
+
+        .correction-btn.cat.selected {
+            border-color: var(--cat-color);
+            background: rgba(249, 115, 22, 0.2);
+        }
+
+        .correction-btn.dog.selected {
+            border-color: var(--dog-color);
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* History Table */
+        .history-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-table {
+            width: 100%;
+            min-width: 500px;
+            border-collapse: collapse;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .history-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .history-table td {
+            white-space: nowrap;
+        }
+
+        .history-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.cat {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--cat-color);
+        }
+
+        .badge.dog {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--dog-color);
+        }
+
+        .badge.corrected {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        /* Training Section */
+        .training-section {
+            margin-top: 24px;
+        }
+
+        .training-status {
+            padding: 16px;
+            background: var(--bg-glass);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.idle {
+            background: var(--text-secondary);
+        }
+
+        .status-dot.running {
+            background: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.completed {
+            background: var(--success);
+        }
+
+        .status-dot.failed {
+            background: var(--error);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Live Time Indicator */
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--error);
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--error);
+            border-radius: 50%;
+            animation: livePulse 1s infinite;
+        }
+
+        @keyframes livePulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.8);
+            }
+        }
+
+        .status-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .progress-container .progress-bar {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-glass);
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-percent {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .training-details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-height: 48px;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .toast {
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--error);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Confirmation Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            width: 100%;
+            max-width: 400px;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .modal-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
+            min-height: 48px;
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1000px;
+                padding: 32px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 32px;
+            }
+
+            /* Classify Tab Grid - Side by Side Layout */
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+
+            .main-grid>.card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .main-grid .upload-area {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* Result Section - Match height */
+            .result-section {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .result-container {
+                height: 100%;
+            }
+
+            .result-container .card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* Empty State for Result Section on Desktop */
+            .result-section:not(:has(.result-container.active))::before {
+                content: "📊 Result will appear here";
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                background: var(--bg-card);
+                backdrop-filter: blur(20px);
+                border: 2px dashed var(--border);
+                border-radius: var(--radius);
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                padding: 32px;
+                text-align: center;
+            }
+
+            .result-section:has(.result-container.active)::before {
+                display: none;
+            }
+
+            /* Keep buttons full width in classify section */
+            .main-grid .btn {
+                width: 100%;
+            }
+
+            /* Other buttons can be auto width */
+            .btn:not(.main-grid .btn) {
+                width: auto;
+            }
+
+            .upload-area {
+                padding: 48px 32px;
+            }
+
+            .tabs {
+                justify-content: center;
+            }
+
+            .tab {
+                flex: none;
+                min-width: 150px;
+            }
+
+            /* Preview image better sizing on desktop */
+            .preview-image {
+                max-height: 250px;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1100px;
+            }
+
+            .main-grid {
+                gap: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🐱 Cat vs Dog 🐶</h1>
+            <p>AI-powered image classifier using MobileNetV2</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="classify">📷 Classify</button>
+            <button class="tab" data-tab="history">📋 History</button>
+            <button class="tab" data-tab="training">🔄 Train</button>
+        </div>
+
+        <!-- Classify Tab -->
+        <div id="classify-tab" class="tab-content active">
+            <div class="main-grid">
+                <!-- Upload Card -->
+                <div class="card">
+                    <h2 class="card-title">📤 Upload Image</h2>
+
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">Tap to take a photo or select an image</p>
+                        <input type="file" id="file-input" class="file-input" accept="image/*" capture="environment">
+                        <button class="btn btn-secondary btn-sm">Choose File</button>
+                    </div>
+
+                    <div class="preview-container" id="preview-container">
+                        <img id="preview-image" class="preview-image" src="" alt="Preview">
+                        <p id="preview-filename" class="preview-filename"></p>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="predict-btn" class="btn btn-primary" disabled>
+                            <span id="predict-text">🔍 Analyze Image</span>
+                            <span id="predict-spinner" class="spinner" style="display: none;"></span>
+                        </button>
+                        <button id="reset-btn" class="btn btn-danger" onclick="resetClassify()">
+                            🔄 Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Card -->
+                <div class="result-section">
+                    <div class="result-container" id="result-container">
+                        <div class="card result-card">
+                            <div id="result-emoji" class="result-emoji">🐱</div>
+                            <div id="result-label" class="result-label cat">Cat</div>
+                            <div class="confidence-bar">
+                                <div id="confidence-fill" class="confidence-fill cat" style="width: 85%"></div>
+                            </div>
+                            <p id="confidence-text" class="confidence-text">Confidence: 85%</p>
+
+                            <div class="correction-section">
+                                <p class="correction-label">Wrong prediction? Let us know:</p>
+                                <div class="correction-buttons">
+                                    <button class="correction-btn cat" data-label="Cat"
+                                        onclick="correctPrediction('Cat')">
+                                        🐱 It's a Cat
+                                    </button>
+                                    <button class="correction-btn dog" data-label="Dog"
+                                        onclick="correctPrediction('Dog')">
+                                        🐶 It's a Dog
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Prediction History</h2>
+                    <button id="clear-history-btn" class="btn btn-danger btn-sm" onclick="clearAllHistory()">
+                        🗑️ Clear All
+                    </button>
+                </div>
+                <div class="history-wrapper" id="history-wrapper">
+                    <div class="empty-state">
+                        <p>No predictions yet. Upload an image to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Tab -->
+        <div id="training-tab" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">🔄 Retrain Model</h2>
+
+                <div class="training-status" id="training-status">
+                    <div class="status-header">
+                        <div class="status-info">
+                            <span id="status-dot" class="status-dot idle"></span>
+                            <span id="status-text">Status: Idle</span>
+                        </div>
+                        <div id="live-time" class="live-time" style="display: none;">
+                            <span class="live-indicator"></span>
+                            <span id="elapsed-time">00:00</span>
+                        </div>
+                    </div>
+                    <p id="status-message" class="status-message"></p>
+                    <div class="progress-container" id="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="progress-percent" class="progress-percent">0%</span>
+                    </div>
+                    <div id="training-details" class="training-details" style="display: none;">
+                        <div class="detail-item">
+                            <span class="detail-label">Last Updated:</span>
+                            <span id="last-updated" class="detail-value">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-area" id="training-upload-area">
+                    <div class="upload-icon">📦</div>
+                    <p class="upload-text">Upload a ZIP file with training data</p>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px;">
+                        ZIP should contain folders named 'cats' and 'dogs' with images
+                    </p>
+                    <input type="file" id="training-file-input" class="file-input" accept=".zip">
+                    <button class="btn btn-secondary btn-sm">Choose ZIP File</button>
+                </div>
+
+                <button id="train-btn" class="btn btn-primary" style="margin-top: 20px;" disabled>
+                    <span id="train-text">🚀 Start Training</span>
+                    <span id="train-spinner" class="spinner" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-content">
+                <div class="modal-icon">⚠️</div>
+                <h3 class="modal-title" id="modal-title">Confirm Action</h3>
+                <p class="modal-message" id="modal-message">Are you sure you want to proceed?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                    <button class="btn btn-danger" id="modal-confirm-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentPredictionId = null;
+        let selectedFile = null;
+        let trainingFile = null;
+        let isPollingStatus = false;
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+        const previewFilename = document.getElementById('preview-filename');
+        const predictBtn = document.getElementById('predict-btn');
+        const predictText = document.getElementById('predict-text');
+        const predictSpinner = document.getElementById('predict-spinner');
+        const resultContainer = document.getElementById('result-container');
+        const trainingFileInput = document.getElementById('training-file-input');
+        const trainingUploadArea = document.getElementById('training-upload-area');
+        const trainBtn = document.getElementById('train-btn');
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+
+                // Update tab buttons
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+
+                // Load history when switching to history tab
+                if (tabId === 'history') {
+                    loadHistory();
+                }
+
+                // Start polling when on training tab
+                if (tabId === 'training') {
+                    updateTrainingStatus();
+                }
+            });
+        });
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewFilename.textContent = file.name;
+                previewContainer.classList.add('active');
+                predictBtn.disabled = false;
+                resultContainer.classList.remove('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Prediction
+        predictBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // UI feedback
+            predictBtn.disabled = true;
+            predictText.style.display = 'none';
+            predictSpinner.style.display = 'inline-block';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResult(data.result);
+                    showToast('Prediction complete!', 'success');
+                } else {
+                    showToast(data.error || 'Prediction failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            } finally {
+                predictBtn.disabled = false;
+                predictText.style.display = 'inline';
+                predictSpinner.style.display = 'none';
+            }
+        });
+
+        function displayResult(result) {
+            currentPredictionId = result.id;
+            const isCat = result.prediction === 'Cat';
+            const confidence = Math.round(result.confidence * 100);
+
+            document.getElementById('result-emoji').textContent = isCat ? '🐱' : '🐶';
+
+            const labelEl = document.getElementById('result-label');
+            labelEl.textContent = result.prediction;
+            labelEl.className = `result-label ${isCat ? 'cat' : 'dog'}`;
+
+            const fillEl = document.getElementById('confidence-fill');
+            fillEl.style.width = `${confidence}%`;
+            fillEl.className = `confidence-fill ${isCat ? 'cat' : 'dog'}`;
+
+            document.getElementById('confidence-text').textContent = `Confidence: ${confidence}%`;
+
+            resultContainer.classList.add('active');
+
+            // Scroll to result on mobile
+            if (window.innerWidth < 768) {
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Reset Classify
+        function resetClassify() {
+            // Reset state
+            selectedFile = null;
+            currentPredictionId = null;
+
+            // Reset file input
+            fileInput.value = '';
+
+            // Hide preview
+            previewContainer.classList.remove('active');
+            previewImage.src = '';
+            previewFilename.textContent = '';
+
+            // Hide result
+            resultContainer.classList.remove('active');
+
+            // Reset correction buttons
+            document.querySelectorAll('.correction-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Disable predict button
+            predictBtn.disabled = true;
+
+            // Show toast
+            showToast('Reset complete! Ready for new image.', 'success');
+        }
+
+        // Correction
+        async function correctPrediction(label) {
+            if (!currentPredictionId) return;
+
+            try {
+                const response = await fetch(`/api/correction/${currentPredictionId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ corrected_label: label })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Corrected to: ${label}`, 'success');
+                    // Update UI
+                    document.querySelectorAll('.correction-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                        if (btn.dataset.label === label) {
+                            btn.classList.add('selected');
+                        }
+                    });
+                } else {
+                    showToast(data.message || 'Correction failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            }
+        }
+
+        // History
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+
+                const wrapper = document.getElementById('history-wrapper');
+
+                if (!data.predictions || data.predictions.length === 0) {
+                    wrapper.innerHTML = `
+                        <div class="empty-state">
+                            <p>No predictions yet. Upload an image to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                                <th>Correction</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.predictions.forEach(p => {
+                    const isCat = p.prediction === 'Cat';
+                    const confidence = Math.round(p.confidence * 100);
+                    const time = new Date(p.timestamp).toLocaleString();
+
+                    html += `
+                        <tr>
+                            <td><img src="${p.image_path}" class="history-thumb" alt=""></td>
+                            <td><span class="badge ${isCat ? 'cat' : 'dog'}">${p.prediction}</span></td>
+                            <td>${confidence}%</td>
+                            <td>${p.corrected_label ? `<span class="badge corrected">${p.corrected_label}</span>` : '-'}</td>
+                            <td>${time}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                wrapper.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Clear All History
+        function clearAllHistory() {
+            showConfirmModal(
+                'Delete All History',
+                'Are you sure you want to delete all prediction history and uploaded images? This action cannot be undone.',
+                async () => {
+                    try {
+                        const response = await fetch('/api/history', {
+                            method: 'DELETE'
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            showToast('All history cleared!', 'success');
+                            // Reload history to show empty state
+                            loadHistory();
+                        } else {
+                            showToast(data.message || 'Failed to clear history', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('An error occurred', 'error');
+                    }
+                }
+            );
+        }
+
+        // Confirmation Modal Functions
+        let modalConfirmCallback = null;
+
+        function showConfirmModal(title, message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            modalConfirmCallback = onConfirm;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function hideConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scroll
+            modalConfirmCallback = null;
+        }
+
+        // Modal event listeners
+        document.getElementById('modal-cancel-btn').addEventListener('click', hideConfirmModal);
+        document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+            if (modalConfirmCallback) {
+                modalConfirmCallback();
+            }
+            hideConfirmModal();
+        });
+
+        // Close modal on overlay click
+        document.getElementById('confirm-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') {
+                hideConfirmModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hideConfirmModal();
+            }
+        });
+
+        // Training
+        trainingUploadArea.addEventListener('click', () => trainingFileInput.click());
+        trainingFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                trainingFile = e.target.files[0];
+                trainingUploadArea.querySelector('.upload-text').textContent = trainingFile.name;
+                trainBtn.disabled = false;
+            }
+        });
+
+        trainBtn.addEventListener('click', async () => {
+            if (!trainingFile) return;
+
+            trainBtn.disabled = true;
+            document.getElementById('train-text').style.display = 'none';
+            document.getElementById('train-spinner').style.display = 'inline-block';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', trainingFile);
+
+                const response = await fetch('/api/train', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Training started!', 'success');
+                    startPollingStatus();
+                } else {
+                    showToast(data.message || 'Failed to start training', 'error');
+                    trainBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+                trainBtn.disabled = false;
+            } finally {
+                document.getElementById('train-text').style.display = 'inline';
+                document.getElementById('train-spinner').style.display = 'none';
+            }
+        });
+
+        async function updateTrainingStatus() {
+            try {
+                const response = await fetch('/api/training-status');
+                const status = await response.json();
+
+                const statusDot = document.getElementById('status-dot');
+                const statusText = document.getElementById('status-text');
+                const statusMessage = document.getElementById('status-message');
+                const progressContainer = document.getElementById('progress-container');
+                const progressFill = document.getElementById('progress-fill');
+                const progressPercent = document.getElementById('progress-percent');
+                const liveTime = document.getElementById('live-time');
+                const trainingDetails = document.getElementById('training-details');
+                const lastUpdated = document.getElementById('last-updated');
+
+                // Update status dot and text
+                statusDot.className = `status-dot ${status.status}`;
+                const statusLabel = status.status.charAt(0).toUpperCase() + status.status.slice(1);
+                statusText.textContent = `Status: ${statusLabel}`;
+                statusMessage.textContent = status.message || '';
+
+                // Show/hide progress bar based on status
+                if (status.status === 'running' && status.progress !== null) {
+                    progressContainer.style.display = 'flex';
+                    progressFill.style.width = `${status.progress}%`;
+                    progressPercent.textContent = `${Math.round(status.progress)}%`;
+                    liveTime.style.display = 'flex';
+                    trainingDetails.style.display = 'block';
+                } else {
+                    progressContainer.style.display = 'none';
+                    if (status.status === 'idle') {
+                        liveTime.style.display = 'none';
+                        trainingDetails.style.display = 'none';
+                    } else {
+                        // Keep showing for completed/failed
+                        liveTime.style.display = 'none';
+                        trainingDetails.style.display = 'block';
+                    }
+                }
+
+                // Update last updated time
+                if (status.last_updated) {
+                    const updateDate = new Date(status.last_updated);
+                    lastUpdated.textContent = updateDate.toLocaleTimeString();
+                }
+
+                // Manage train button state
+                if (status.status === 'running') {
+                    trainBtn.disabled = true;
+                } else {
+                    trainBtn.disabled = !trainingFile;
+                }
+
+                return status;
+            } catch (error) {
+                console.error('Error updating status:', error);
+                return { status: 'error' };
+            }
+        }
+
+        // Training elapsed time tracking
+        let trainingStartTime = null;
+        let elapsedTimeInterval = null;
+
+        function startElapsedTimer() {
+            trainingStartTime = Date.now();
+            updateElapsedTime();
+            elapsedTimeInterval = setInterval(updateElapsedTime, 1000);
+        }
+
+        function stopElapsedTimer() {
+            if (elapsedTimeInterval) {
+                clearInterval(elapsedTimeInterval);
+                elapsedTimeInterval = null;
+            }
+        }
+
+        function updateElapsedTime() {
+            if (!trainingStartTime) return;
+            const elapsed = Date.now() - trainingStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('elapsed-time').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startPollingStatus() {
+            if (isPollingStatus) return;
+            isPollingStatus = true;
+
+            // Start elapsed timer
+            startElapsedTimer();
+
+            const poll = async () => {
+                const statusData = await updateTrainingStatus();
+                const status = statusData.status;
+
+                if (status === 'running') {
+                    // Fast polling for realtime updates (every 1 second)
+                    setTimeout(poll, 1000);
+                } else {
+                    isPollingStatus = false;
+                    stopElapsedTimer();
+
+                    if (status === 'completed') {
+                        showToast('Training completed successfully!', 'success');
+                    } else if (status === 'failed') {
+                        showToast('Training failed. Check the message for details.', 'error');
+                    }
+                }
+            };
+
+            poll();
+        }
+
+        // Auto-poll when on training tab if training is running
+        async function checkAndStartPolling() {
+            const statusData = await updateTrainingStatus();
+            if (statusData.status === 'running' && !isPollingStatus) {
+                startPollingStatus();
+            }
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initial load - check status and start polling if needed
+        checkAndStartPolling();
+    </script>
+</body>
+
+</html>

@@ -1,8 +1,8 @@
 {
   "training_status": {
-    "status": "idle",
-    "progress": 0,
-    "message": "",
-    "last_updated": ""
+    "status": "completed",
+    "progress": 100,
+    "message": "Training completed successfully!",
+    "last_updated": "2025-12-12T00:25:49.341117"
   }
 }

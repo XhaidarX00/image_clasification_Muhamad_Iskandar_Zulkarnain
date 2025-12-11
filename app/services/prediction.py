@@ -113,6 +113,62 @@ class PredictionService:
         """Get all prediction history."""
         return history_repo.get_all()
     
+    def get_prediction_stats(self):
+        """Get aggregated prediction statistics for presentation."""
+        history = history_repo.get_all()
+        
+        if not history:
+            return {
+                "total_predictions": 0,
+                "cat_predictions": 0,
+                "dog_predictions": 0,
+                "average_confidence": 0,
+                "most_confident": [],
+                "least_confident": []
+            }
+        
+        # Count predictions by class
+        cat_count = sum(1 for h in history if h.get('prediction') == 'Cat')
+        dog_count = sum(1 for h in history if h.get('prediction') == 'Dog')
+        
+        # Calculate average confidence
+        confidences = [h.get('confidence', 0) for h in history]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 0
+        
+        # Sort by confidence for top/bottom predictions
+        sorted_history = sorted(history, key=lambda x: x.get('confidence', 0), reverse=True)
+        
+        # Get top 5 most confident and bottom 5 least confident
+        most_confident = sorted_history[:5]
+        least_confident = sorted_history[-5:][::-1]  # Reverse to show lowest first
+        
+        return {
+            "total_predictions": len(history),
+            "cat_predictions": cat_count,
+            "dog_predictions": dog_count,
+            "average_confidence": round(avg_confidence, 4),
+            "most_confident": [
+                {
+                    "id": p.get('id'),
+                    "filename": p.get('filename'),
+                    "prediction": p.get('prediction'),
+                    "confidence": round(p.get('confidence', 0), 4),
+                    "image_path": p.get('image_path')
+                }
+                for p in most_confident
+            ],
+            "least_confident": [
+                {
+                    "id": p.get('id'),
+                    "filename": p.get('filename'),
+                    "prediction": p.get('prediction'),
+                    "confidence": round(p.get('confidence', 0), 4),
+                    "image_path": p.get('image_path')
+                }
+                for p in least_confident
+            ]
+        }
+    
     def clear_history(self):
         """Clear all prediction history."""
         history_repo.clear()

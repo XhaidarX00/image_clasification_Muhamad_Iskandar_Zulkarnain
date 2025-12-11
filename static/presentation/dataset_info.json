@@ -1,0 +1,15 @@
+{
+  "total_samples": 2023,
+  "train_samples": 1619,
+  "val_samples": 404,
+  "train_cats": 831,
+  "train_dogs": 788,
+  "val_cats": 180,
+  "val_dogs": 224,
+  "split_ratio": "80:20",
+  "image_size": [
+    160,
+    160
+  ],
+  "batch_size": 32
+}
