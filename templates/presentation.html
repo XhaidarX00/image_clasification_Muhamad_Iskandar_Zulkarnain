@@ -752,7 +752,7 @@
                 const hasMatrix = data.materials.some(m => m.name === 'Confusion Matrix');
                 if (hasMatrix) {
                     document.getElementById('confusion-matrix').innerHTML = `
-                        <img src="/static/presentation/confusion_matrix.png" alt="Confusion Matrix" style="max-width: 600px; margin: 0 auto;">
+                        <img src="/static/presentation/confusion_matrix.png" alt="Confusion Matrix">
                         <p class="image-caption">Confusion Matrix menunjukkan True Positives, False Positives, True Negatives, dan False Negatives</p>
                     `;
                 } else {
